@@ -80,20 +80,22 @@ build_image:
     - docker push $GCR_IMAGE_TAG
 
 deploy:
-  image: google/cloud-sdk:alpine
+  image: dtzar/helm-kubectl:3.2.1
   stage: deploy
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: manual
-  environment: master
-  variables:
-    GCR_IMAGE_TAG: $GCR_IMAGE:git-$CI_COMMIT_SHORT_SHA
+  environment:
+    name: master
+    kubernetes:
+      namespace: factchecklab
   before_script:
-    - gcloud auth activate-service-account --key-file "$GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"
+    - helm dep build chart
   script:
     - |
-      gcloud run deploy $GCLOUD_RUN_SERVICE_NAME \
-        --image $GCR_IMAGE_TAG \
-        --region $GCLOUD_RUN_REGION \
-        --platform managed \
-        --project $GCLOUD_PROJECT_ID
+      helm upgrade -n "$KUBE_NAMESPACE" "$HELM_RELEASE_NAME" chart \
+        --install \
+        --atomic \
+        --set image.tag="git-$CI_COMMIT_SHORT_SHA" \
+        --set image.repository="$GCR_IMAGE" \
+        --values "$HELM_UPGRADE_VALUES_FILE"
