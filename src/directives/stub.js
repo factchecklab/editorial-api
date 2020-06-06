@@ -9,4 +9,8 @@ export default class StubDirective extends SchemaDirectiveVisitor {
     arg.isStub = true;
     return;
   }
+  visitInputFieldDefinition(arg) {
+    arg.isStub = true;
+    return;
+  }
 }

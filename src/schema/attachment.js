@@ -21,18 +21,6 @@ export default gql`
     asset
   }
 
-  extend type Mutation {
-    """
-    Create an attachment
-    """
-    createAttachment(input: CreateAttachmentInput!): CreateAttachmentPayload!
-
-    """
-    Delete an attachment, hence removing it from an item.
-    """
-    deleteAttachment(input: DeleteAttachmentInput!): DeleteAttachmentPayload!
-  }
-
   type Attachment {
     id: ID!
     type: AttachmentType!
@@ -60,25 +48,5 @@ export default gql`
     The asset token of the asset if the type is an asset.
     """
     assetToken: AssetToken
-  }
-
-  input CreateAttachmentInput {
-    itemType: AttachmentItemType!
-    itemId: ID!
-    type: AttachmentType!
-    location: URL
-    assetToken: AssetToken
-  }
-
-  type CreateAttachmentPayload {
-    attachment: Attachment!
-  }
-
-  input DeleteAttachmentInput {
-    id: ID!
-  }
-
-  type DeleteAttachmentPayload {
-    attachmentId: ID!
   }
 `;

@@ -65,9 +65,9 @@ export default {
     entity: (response, args, { models }) => {
       return response.getEntity();
     },
-    topic: (response, args, { models }) => {
-      return response.getTopic();
-    },
+    // topic: (response, args, { models }) => {
+    //   return response.getTopic();
+    // },
     attachments: (response, args, { models }) => {
       return response.getAttachments();
     },
