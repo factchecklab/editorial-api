@@ -1,34 +1,8 @@
 import gql from 'graphql-tag';
 
 export default gql`
-  extend type Query {
-    """
-    Search for report that are related to the specified info.
-    """
-    searchRelatedReports(
-      """
-      The content to search
-      """
-      content: String
-
-      """
-      The url to search
-      """
-      url: String @stub
-    ): SearchRelatedReportConnection!
-  }
-
   extend type Mutation {
     submitTopic(input: SubmitTopicInput!): SubmitTopicPayload!
-  }
-
-  type SearchRelatedReportConnection {
-    edges: [SearchRelatedReportEdge!]
-    nodes: [Report!]
-  }
-
-  type SearchRelatedReportEdge {
-    node: Report!
   }
 
   type SubmittedTopic {

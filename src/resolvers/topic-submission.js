@@ -1,4 +1,3 @@
-import { NotFound } from './errors';
 import {
   verify as verifyAssetToken,
   AssetTokenError,
@@ -6,37 +5,6 @@ import {
 import { ValidationError } from 'apollo-server-koa';
 
 export default {
-  Query: {
-    searchRelatedReports: async (
-      parent,
-      {
-        content,
-        // url  // TODO(cheungpat)
-      },
-      { models, search, elastic }
-    ) => {
-      const ids = await search.Report.searchSimilarByContent(
-        elastic,
-        null,
-        content,
-        0,
-        10
-      );
-
-      const result = models.Report.findAllByDocumentIds(ids);
-      const edges = result.map((report) => {
-        return {
-          node: report,
-        };
-      });
-
-      return {
-        edges,
-        nodes: edges.map((edge) => edge.node),
-      };
-    },
-  },
-
   Mutation: {
     submitTopic: async (parent, { input }, context) => {
       const { models } = context;

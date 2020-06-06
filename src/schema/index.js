@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import directives from './directives';
 import pagination from './pagination';
 import entity from './entity';
-import topic from './topic';
+import report from './report';
 import response from './response';
 import attachment from './attachment';
 import asset from './asset';
@@ -40,7 +40,7 @@ export default [
   directives,
   pagination,
   entity,
-  topic,
+  report,
   response,
   attachment,
   asset,

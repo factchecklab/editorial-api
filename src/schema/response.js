@@ -19,7 +19,7 @@ export default gql`
     published: Boolean!
     conclusion: Conclusion!
     entity: Entity!
-    topic: Topic!
+    # topic: Topic!
     attachments: [Attachment!]
     createdAt: Date!
     updatedAt: Date!
