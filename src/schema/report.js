@@ -33,13 +33,11 @@ export default gql`
     summary: String
     published: Boolean!
     conclusion: Conclusion!
-    message: Message!
 
     """
     Cover image for the report.
     """
     coverImage: Asset
-    responses(includeUnpublished: Boolean = false): [Response!]!
     createdAt: Date!
     updatedAt: Date!
   }

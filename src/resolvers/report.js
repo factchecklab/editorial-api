@@ -27,18 +27,6 @@ export default {
   },
 
   Report: {
-    message: (topic, args, { models }) => {
-      return topic.getMessage();
-    },
-
-    responses: (topic, { includeUnpublished }, { models }) => {
-      if (includeUnpublished) {
-        return topic.getResponses({ scope: null });
-      } else {
-        return topic.getResponses();
-      }
-    },
-
     coverImage: (topic, args, { models }) => {
       return topic.getCoverImage();
     },
