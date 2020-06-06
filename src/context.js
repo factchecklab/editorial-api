@@ -12,7 +12,7 @@ const context = () => {
     search,
     storage,
     logger,
-    airtable
+    airtable,
   };
 };
 
