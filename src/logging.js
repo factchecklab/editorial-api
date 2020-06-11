@@ -47,6 +47,7 @@ if (process.env.SENTRY_DSN) {
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'warn',
   format: winston.format.combine(
+    winston.format.splat(),
     winston.format.errors({ stack: true }),
     winston.format.timestamp()
   ),

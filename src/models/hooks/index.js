@@ -1,4 +1,3 @@
-import report from './report';
-import topic from './topic';
+import topicSubmission from './topic-submission';
 
-export default [report, topic];
+export default [topicSubmission];
