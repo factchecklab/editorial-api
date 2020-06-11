@@ -1,24 +1,28 @@
 import { generateAssetUrl, uploadAssetFromUrl } from '../util/asset';
 
 const getTable = (client, { logger }) => {
-  const baseId = process.env.AIRTABLE_REPORT_BASE_ID;
+  const baseId = process.env.AIRTABLE_EDITORIAL_BASE_ID;
   if (!baseId) {
-    throw new Error('AIRTABLE_REPORT_BASE_ID is not configured');
+    throw new Error('AIRTABLE_EDITORIAL_BASE_ID is not configured');
   }
-  return client.base(baseId).table('Submitted Reports');
+  return client.base(baseId).table('Topics');
 };
 
-export const modelToAirtable = async (client, report, options, context) => {
+export const modelToAirtable = async (client, submission, options, context) => {
   const { sequelize, storage, logger } = context;
   const table = getTable(client, context);
 
-  const attachments = await report.getAttachments();
+  if (submission.isDuplicate) {
+    return;
+  }
+
+  const attachments = await submission.getAttachments();
   const recordData = {
-    'Server ID': report.id,
-    Content: report.content,
-    Source: report.source,
-    URL: report.url,
-    'Report Time': report.createdAt,
+    Content: submission.message,
+    'Content URL': submission.url,
+    'Submitter Comment': submission.comment,
+    Status: submission.status,
+    'Duplicate Count': submission.duplicateCount,
     Attachments: await Promise.all(
       attachments.map(async (attachment) => {
         if (attachment.airtableId) {
@@ -40,30 +44,44 @@ export const modelToAirtable = async (client, report, options, context) => {
 
   // update or create airtable
   let newRecord;
-  if (report.airtableID) {
+  if (submission.airtableId) {
     logger.debug(
-      `Report ${report.id} has airtable ID ${report.airtableID}, updating.`
+      'Submitted topic %d has airtable ID %s, updating.',
+      submission.id,
+      submission.airtableId
     );
-    newRecord = await table.update(report.airtableId, recordData);
+    newRecord = await table.update(submission.airtableId, recordData);
+    logger.debug(
+      'Airtable record %s updated for submitted topic %d.',
+      newRecord.id,
+      submission.id
+    );
   } else {
-    logger.debug(`Report ${report.id} does not have an airtable ID, creating.`);
+    logger.debug(
+      'Submitted topic %d does not have an airtable ID, creating.',
+      submission.id
+    );
     newRecord = await table.create(recordData);
+    logger.debug(
+      'Airtable record %s created for submitted topic %d',
+      newRecord.id,
+      submission.id
+    );
   }
 
   // update model with airtable ID and last modified time
   await sequelize.transaction(async (t) => {
     const opts = { ...options, transaction: t };
 
-    report.airtableId = newRecord.id;
-    const lastModifiedTime = newRecord.fields['Last Modified Time'];
-    if (lastModifiedTime) {
-      report.airtableUpdatedAt = new Date(lastModifiedTime);
-    }
-    await report.save(opts);
-
-    logger.debug(
-      `Report ${report.id} updated with new airtableUpdatedAt=${report.airtableUpdatedAt}.`
+    await submission.setAirtableMeta(
+      {
+        id: newRecord.id,
+        updatedAt: new Date(newRecord.fields['Last Modified Time']),
+      },
+      opts
     );
+
+    logger.debug(`Submitted topic %d updated.`, submission.id);
 
     const attachmentsInRecord = newRecord.fields.Attachments || [];
     if (attachments.length === attachmentsInRecord.length) {
@@ -71,8 +89,12 @@ export const modelToAirtable = async (client, report, options, context) => {
       await Promise.all(
         attachmentsInRecord.map(async (airtableAttachment, index) => {
           const ourAttachment = attachments[index];
-          ourAttachment.airtableId = airtableAttachment.id;
-          await ourAttachment.save(opts);
+          await ourAttachment.setAirtableMeta(
+            {
+              id: airtableAttachment.id,
+            },
+            opts
+          );
         })
       );
     }
@@ -81,41 +103,42 @@ export const modelToAirtable = async (client, report, options, context) => {
 
 export const airtableToModel = async (record, options, context) => {
   const { sequelize, storage, models, logger } = context;
-  logger.debug(`Got submitted report record ${record.id}.`);
-
-  // find existing report and prepare for update data
-  let report = await models.Report.findOne({
-    where: {
-      airtableId: record.id,
-    },
-  });
-  let attachments = [];
+  logger.debug(`Got submitted topic record ${record.id}.`);
 
   const modelData = {
-    content: record.fields['Content'] || '',
-    source: record.fields['Source'] || '',
-    url: record.fields['URL'] || '',
-    airtableId: record.id,
-    airtableUpdatedAt: new Date(record.fields['Last Modified Time']),
+    message: record.fields['Content'],
+    url: record.fields['Content URL'],
+    comment: record.fields['Submitter Comment'],
   };
 
-  // create a new report or update an existing report
-  if (report) {
-    logger.debug(`Found existing report model ${report.id}, updating`);
-    report.set(modelData);
+  const airtableMeta = {
+    id: record.id,
+    updatedAt: new Date(record.fields['Last Modified Time']),
+  };
 
-    attachments = await report.getAttachments();
+  // find existing submitted topic and prepare for update data
+  let submission = await models.TopicSubmission.findByAirtableId(record.id);
+
+  let attachments = [];
+
+  // create a new submission or update an existing submission
+  if (submission) {
+    logger.debug(
+      `Found existing topic submission model ${submission.id}, updating`
+    );
+    submission.set(modelData);
+    attachments = await submission.getAttachments();
   } else {
-    logger.debug(`Creating new report model for airtable record`);
-    report = models.Report.build(modelData);
+    logger.debug(`Creating new topic submission model for airtable record`);
+    submission = models.TopicSubmission.build(modelData);
   }
 
   // attachments
-  record.fields['Attachments'] = record.fields['Attachments'] || [];
+  const airtableAttachments = record.fields['Attachments'] || [];
 
   // find new attachments to create
   const attachmentsToCreate = await Promise.all(
-    record.fields['Attachments']
+    airtableAttachments
       .filter((attachment) => {
         return (
           attachments.findIndex((att) => att.airtableId === attachment.id) ===
@@ -135,9 +158,12 @@ export const airtableToModel = async (record, options, context) => {
         asset = await asset.save({ returning: true });
 
         return models.Attachment.build({
-          type: 'asset',
           assetId: asset.id,
-          airtableId: attachment.id,
+          metadata: {
+            airtable: {
+              id: attachment.id,
+            },
+          },
         });
       })
   );
@@ -145,7 +171,7 @@ export const airtableToModel = async (record, options, context) => {
   // find existing attachments to destroy
   const attachmentsToDestroy = attachments.filter((attachment) => {
     return (
-      record.fields['Attachments'].findIndex(
+      airtableAttachments.findIndex(
         (att) => att.id === attachment.airtableId
       ) === -1
     );
@@ -154,11 +180,13 @@ export const airtableToModel = async (record, options, context) => {
   // commit to database
   return sequelize.transaction(async (t) => {
     const opts = { transaction: t };
-    report = await report.save({ ...opts, returning: true });
+    submission = await submission.save({ ...opts, returning: true });
+    await submission.setAirtableMeta(airtableMeta, opts);
+
     await Promise.all(
       attachmentsToCreate.map((attachment) => {
-        attachment.itemType = 'report';
-        attachment.itemId = report.id;
+        attachment.itemId = submission.id;
+        attachment.itemType = 'topic-submission';
         return attachment.save(opts);
       })
     );
@@ -167,7 +195,7 @@ export const airtableToModel = async (record, options, context) => {
         return attachment.destroy(opts);
       })
     );
-    return report;
+    return submission;
   });
 };
 
@@ -187,7 +215,7 @@ export const fetchAndUpdate = async (client, date, context) => {
 
   const query = table.select(selectOptions);
 
-  logger.debug('Querying airtable for submitted reports records');
+  logger.debug('Querying airtable for submitted topic records');
   let recordCount = 0;
   let errorCount = 0;
   await query.eachPage(async (records, fetchNextPage) => {
@@ -210,34 +238,32 @@ export const fetchAndUpdate = async (client, date, context) => {
   });
 
   logger.info(
-    `Fetched ${recordCount} reports and updated with ${errorCount} errors.`
+    `Fetched ${recordCount} topic submissions  and updated with ${errorCount} errors.`
   );
 };
 
 export const saveNew = async (client, context) => {
   const { logger, models } = context;
 
-  const reports = await models.Report.findAll({
-    where: {
-      airtableId: null,
-    },
-  });
+  const submissions = await models.TopicSubmission.findAllWithoutAirtableId();
 
-  let reportCount = 0;
+  let submissionCount = 0;
   let errorCount = 0;
   await Promise.all(
-    reports.map(async (report) => {
-      try {
-        reportCount += 1;
-        return await modelToAirtable(client, report, {}, context);
-      } catch (error) {
-        logger.error('Error occurred while calling modelToAirtable: ', error);
-        errorCount += 1;
-      }
-    })
+    submissions
+      .filter((s) => !s.isDuplicate)
+      .map(async (s) => {
+        try {
+          submissionCount += 1;
+          return await modelToAirtable(client, s, {}, context);
+        } catch (error) {
+          logger.error('Error occurred while calling modelToAirtable: ', error);
+          errorCount += 1;
+        }
+      })
   );
 
   logger.info(
-    `Found ${reportCount} reports without airtable ID and saving to airtable, with ${errorCount} errors.`
+    `Found ${submissionCount} topic submissions without airtable ID and saving to airtable, with ${errorCount} errors.`
   );
 };
