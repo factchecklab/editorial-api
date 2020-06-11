@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 
 import directives from './directives';
 import pagination from './pagination';
-import report from './report';
 import attachment from './attachment';
 import asset from './asset';
 import topicSubmission from './topic-submission';
@@ -36,7 +35,6 @@ export default [
   link,
   directives,
   pagination,
-  report,
   attachment,
   asset,
   topicSubmission,

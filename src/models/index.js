@@ -40,11 +40,7 @@ const sequelize = (() => {
 const models = {
   Asset: sequelize.import('./asset'),
   Attachment: sequelize.import('./attachment'),
-  Entity: sequelize.import('./entity'),
-  Message: sequelize.import('./message'),
-  Report: sequelize.import('./report'),
-  Response: sequelize.import('./response'),
-  Topic: sequelize.import('./topic'),
+  TopicSubmission: sequelize.import('./topic-submission'),
 };
 
 Object.keys(models).forEach((key) => {

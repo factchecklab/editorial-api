@@ -4,7 +4,16 @@ export default (sequelize, DataTypes) => {
   /**
    * Attachment is additional data that can be attached to an item.
    */
-  class Attachment extends Sequelize.Model {}
+  class Attachment extends Sequelize.Model {
+    setAirtableMeta(meta, options) {
+      return sequelize.query(
+        `UPDATE attachments
+         SET metadata = jsonb_set(metadata, '{airtable}', $1, true)
+         WHERE id = $2`,
+        { ...options, bind: [JSON.stringify(meta), this.id] }
+      );
+    }
+  }
 
   Attachment.init(
     {
@@ -18,16 +27,19 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      type: {
-        type: DataTypes.TEXT,
+      metadata: {
+        type: DataTypes.JSONB,
         allowNull: false,
+        defaultValue: {},
       },
-      location: DataTypes.TEXT,
       airtableId: {
-        type: DataTypes.TEXT,
-        field: 'airtable_id',
-        allowNull: true,
-        unqiue: true,
+        type: DataTypes.VIRTUAL,
+        get() {
+          return this.metadata.airtable && this.metadata.airtable.id;
+        },
+        set(value) {
+          throw new Error('Unsupported');
+        },
       },
     },
     {
@@ -42,6 +54,7 @@ export default (sequelize, DataTypes) => {
       foreignKey: {
         name: 'assetId',
         field: 'asset_id',
+        allowNull: false,
       },
     });
   };
