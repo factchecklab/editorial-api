@@ -22,6 +22,10 @@ export class AssetTokenError extends Error {
 
 export const generate = (assetId) => {
   return new Promise((resolve, reject) => {
+    if (!assetId) {
+      reject(new Error('assetId not specified'));
+    }
+
     jwt.sign(
       { assetId: parseInt(assetId) },
       getTokenSecret(),
@@ -53,6 +57,10 @@ export const verify = (token, expectedAssetId) => {
       if (expectedAssetId && parseInt(expectedAssetId) !== payload.assetId) {
         reject(new AssetTokenError());
         return;
+      }
+
+      if (!payload.assetId) {
+        reject(new AssetTokenError());
       }
 
       resolve(payload.assetId);

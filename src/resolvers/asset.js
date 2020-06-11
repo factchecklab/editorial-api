@@ -2,17 +2,33 @@ import {
   generateAssetUrl,
   generateAssetToken,
   uploadAsset,
+  uploadAssetFromUrl,
 } from '../util/asset';
-
-export const uploadAndBuildAsset = async (file, { models, storage }) => {
-  return models.Asset.build(await uploadAsset(storage, file));
-};
 
 export default {
   Mutation: {
-    uploadAsset: async (parent, { file }, context) => {
-      const asset = await uploadAndBuildAsset(file, context);
-      return asset.save({ returning: true });
+    createAsset: async (parent, { input }, { models, storage }) => {
+      const { file } = input;
+      let asset = await models.Asset.build(await uploadAsset(storage, file));
+      asset = await asset.save({ returning: true });
+
+      return {
+        asset,
+        token: generateAssetToken(asset.id),
+      };
+    },
+
+    createAssetFromUrl: async (parent, { input }, { models, storage }) => {
+      const { url } = input;
+      let asset = await models.Asset.build(
+        await uploadAssetFromUrl(storage, url)
+      );
+      asset = await asset.save({ returning: true });
+
+      return {
+        asset,
+        token: generateAssetToken(asset.id),
+      };
     },
   },
 
@@ -22,18 +38,6 @@ export default {
     },
     downloadUrl: (asset, args, { storage }) => {
       return generateAssetUrl(storage, asset, { promptSaveAs: asset.filename });
-    },
-  },
-
-  UploadedAsset: {
-    url: (asset, args, { storage }) => {
-      return generateAssetUrl(storage, asset, {});
-    },
-    downloadUrl: (asset, args, { storage }) => {
-      return generateAssetUrl(storage, asset, { promptSaveAs: asset.filename });
-    },
-    token: (asset, args, context) => {
-      return generateAssetToken(asset.id);
     },
   },
 };

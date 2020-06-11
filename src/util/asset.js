@@ -63,12 +63,32 @@ export const uploadAsset = async (storage, file) => {
   });
 };
 
-export const uploadAssetFromUrl = async (
-  storage,
-  url,
-  { filename, contentType }
-) => {
+const parseHeaderFilename = (value) => {
+  if (!value) return null;
+  let matches = /filename="?([^;"]*?)/g.exec(value);
+  return matches && matches.length > 1 ? matches[1] : null;
+};
+
+const parseHeaderContentType = (value) => {
+  if (!value) return null;
+  return value.split(';')[0];
+};
+
+export const uploadAssetFromUrl = async (storage, url, args) => {
+  let { filename, contentType } = args || {};
   const response = await fetch(url);
+
+  filename =
+    filename ||
+    parseHeaderFilename(response.headers.get('content-disposition')) ||
+    path.basename(url) ||
+    'file.bin';
+  contentType =
+    contentType ||
+    parseHeaderContentType(response.headers.get('content-type')) ||
+    mime.lookup(filename) ||
+    'application/octet-stream';
+
   return uploadAssetFromStream(storage, response.body, {
     filename,
     contentType,
