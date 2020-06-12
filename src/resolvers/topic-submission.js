@@ -25,7 +25,7 @@ export default {
         message,
         url ? cleanUrl(url) : undefined,
         0,
-        5
+        1
       );
       logger.debug('Found %d similar topic submissions.', docs.length);
 
@@ -47,12 +47,25 @@ export default {
 
       return sequelize.transaction(async (t) => {
         const options = { transaction: t };
-        let duplicate =
-          docs.length > 0
-            ? await models.TopicSubmission.findByPk(docs[0]._source.id, options)
-            : null;
-
-        duplicate = duplicate ? await duplicate.findRootDuplicate() : null;
+        let duplicate = null;
+        if (docs.length > 0) {
+          duplicate = await models.TopicSubmission.findByPk(
+            docs[0]._source.id,
+            options
+          );
+          if (duplicate) {
+            duplicate = await duplicate.findRootDuplicate();
+            logger.debug(
+              'The new submission is a duplicate of %d.',
+              duplicate.id
+            );
+          } else {
+            logger.warn(
+              'Topic submission %d not found in database',
+              docs[0]._source.id
+            );
+          }
+        }
 
         let submittedTopic = models.TopicSubmission.build(
           {
