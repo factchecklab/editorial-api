@@ -8,11 +8,17 @@ const getTable = (client, { logger }) => {
   return client.base(baseId).table('Topics');
 };
 
+const shouldSync = (s) => {
+  return (
+    !s.isDuplicate && !(s.metadata.airtable && s.metadata.airtable.disable)
+  );
+};
+
 export const modelToAirtable = async (client, submission, options, context) => {
   const { sequelize, storage, logger } = context;
   const table = getTable(client, context);
 
-  if (submission.isDuplicate) {
+  if (!shouldSync(submission)) {
     return;
   }
 
@@ -44,18 +50,32 @@ export const modelToAirtable = async (client, submission, options, context) => {
 
   // update or create airtable
   let newRecord;
+  let disableSync = false;
   if (submission.airtableId) {
     logger.debug(
       'Submitted topic %d has airtable ID %s, updating.',
       submission.id,
       submission.airtableId
     );
-    newRecord = await table.update(submission.airtableId, recordData);
-    logger.debug(
-      'Airtable record %s updated for submitted topic %d.',
-      newRecord.id,
-      submission.id
-    );
+    try {
+      newRecord = await table.update(submission.airtableId, recordData);
+      logger.debug(
+        'Airtable record %s updated for submitted topic %d.',
+        newRecord.id,
+        submission.id
+      );
+    } catch (error) {
+      if (error.error === 'NOT_FOUND') {
+        logger.info(
+          'Airtable record %s was not found, will not sync submission topic %d in the future.',
+          submission.airtableId,
+          submission.id
+        );
+        disableSync = true;
+      } else {
+        throw error;
+      }
+    }
   } else {
     logger.debug(
       'Submitted topic %d does not have an airtable ID, creating.',
@@ -73,13 +93,17 @@ export const modelToAirtable = async (client, submission, options, context) => {
   await sequelize.transaction(async (t) => {
     const opts = { ...options, transaction: t };
 
-    await submission.setAirtableMeta(
-      {
-        id: newRecord.id,
-        updatedAt: new Date(newRecord.fields['Last Modified Time']),
-      },
-      opts
-    );
+    const airtableMeta =
+      (submission.metadata && submission.metadata.airtable) || {};
+    if (newRecord) {
+      airtableMeta.id = newRecord.id;
+      airtableMeta.updatedAt = new Date(newRecord.fields['Last Modified Time']);
+    }
+    if (disableSync) {
+      airtableMeta.disable = true;
+    }
+
+    await submission.setAirtableMeta(airtableMeta, opts);
 
     logger.debug(`Submitted topic %d updated.`, submission.id);
 
@@ -250,17 +274,15 @@ export const saveNew = async (client, context) => {
   let submissionCount = 0;
   let errorCount = 0;
   await Promise.all(
-    submissions
-      .filter((s) => !s.isDuplicate)
-      .map(async (s) => {
-        try {
-          submissionCount += 1;
-          return await modelToAirtable(client, s, {}, context);
-        } catch (error) {
-          logger.error('Error occurred while calling modelToAirtable: ', error);
-          errorCount += 1;
-        }
-      })
+    submissions.filter(shouldSync).map(async (s) => {
+      try {
+        submissionCount += 1;
+        return await modelToAirtable(client, s, {}, context);
+      } catch (error) {
+        logger.error('Error occurred while calling modelToAirtable: ', error);
+        errorCount += 1;
+      }
+    })
   );
 
   logger.info(
