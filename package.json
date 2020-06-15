@@ -11,7 +11,9 @@
     "seed:demo": "sequelize db:seed --seed 20200402145342-demo",
     "lint": "eslint --ext .js --ignore-path .eslintignore .",
     "test": "jest",
-    "reindex": "babel-node src/bin/reindex.js"
+    "reindex": "babel-node src/bin/reindex.js",
+    "schema:facts-api": "apollo client:download-schema --endpoint ${FACTS_API_ENDPOINT:-https://api.factchecklab.org/graphql/facts} src/schema/facts-api/schema.json --excludes \"src/**\""
+
   },
   "bin": {
     "editorial-reindex": "./dist/bin/reindex.js",
@@ -20,6 +22,8 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.6.1",
     "@google-cloud/storage": "^4.7.0",
+    "@graphql-tools/json-file-loader": "^6.0.9",
+    "@graphql-tools/load": "^6.0.9",
     "@sentry/integrations": "^5.15.5",
     "@sentry/node": "^5.15.5",
     "airtable": "^0.8.1",
@@ -28,6 +32,7 @@
     "dataloader": "^2.0.0",
     "dotenv": "^8.2.0",
     "graphql": "^14.6.0",
+    "graphql-tools": "^6.0.9",
     "jsonwebtoken": "^8.5.1",
     "mime-types": "^2.1.26",
     "neat-url": "^1.0.9",
@@ -47,6 +52,7 @@
     "@babel/node": "^7.8.7",
     "@babel/preset-env": "^7.9.0",
     "@babel/register": "^7.9.0",
+    "apollo": "^2.27.3",
     "babel-eslint": "^10.1.0",
     "babel-plugin-graphql-tag": "^2.5.0",
     "eslint": "^6.8.0",
