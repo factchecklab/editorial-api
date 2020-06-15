@@ -13,7 +13,6 @@
     "test": "jest",
     "reindex": "babel-node src/bin/reindex.js",
     "schema:facts-api": "apollo client:download-schema --endpoint ${FACTS_API_ENDPOINT:-https://api.factchecklab.org/graphql/facts} src/schema/facts-api/schema.json --excludes \"src/**\""
-
   },
   "bin": {
     "editorial-reindex": "./dist/bin/reindex.js",
@@ -27,6 +26,7 @@
     "@sentry/integrations": "^5.15.5",
     "@sentry/node": "^5.15.5",
     "airtable": "^0.8.1",
+    "apollo-link-http": "^1.5.17",
     "apollo-server": "^2.11.0",
     "apollo-server-koa": "^2.11.0",
     "dataloader": "^2.0.0",
