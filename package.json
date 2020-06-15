@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=production node dist/index.js",
     "dev": "nodemon --exec babel-node src/index.js",
-    "build": "babel src --out-dir dist",
+    "build": "babel src --out-dir dist && copyfiles -u 1 src/schema/facts-api/schema.json dist/",
     "migrate": "sequelize db:migrate",
     "seed:demo": "sequelize db:seed --seed 20200402145342-demo",
     "lint": "eslint --ext .js --ignore-path .eslintignore .",
@@ -55,6 +55,7 @@
     "apollo": "^2.27.3",
     "babel-eslint": "^10.1.0",
     "babel-plugin-graphql-tag": "^2.5.0",
+    "copyfiles": "^2.3.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
