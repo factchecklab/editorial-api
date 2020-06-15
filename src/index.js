@@ -6,9 +6,6 @@ import directives from './directives';
 import { errorLoggingPlugin } from './plugins/error-logging';
 import context from './context';
 
-// The ApolloServer constructor requires two parameters: your schema
-// definition and your set of resolvers.
-
 hooks.forEach((hook) => {
   const ctx = context();
   hook(ctx.models, ctx);
@@ -21,6 +18,9 @@ hooks.forEach((hook) => {
     schemaDirectives: directives,
     introspection: true,
     plugins: [errorLoggingPlugin],
+    cacheControl: {
+      defaultMaxAge: parseInt(process.env.DEFAULT_CACHE_CONTROL_MAX_AGE) || 0,
+    },
   });
 
   // The `listen` method launches a web server.
