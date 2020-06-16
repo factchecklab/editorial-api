@@ -5,7 +5,7 @@ const getTable = (client, { logger }) => {
   if (!baseId) {
     throw new Error('AIRTABLE_EDITORIAL_BASE_ID is not configured');
   }
-  return client.base(baseId).table('Topics');
+  return client.base(baseId).table('Submitted Topics');
 };
 
 const shouldSync = (s) => {
