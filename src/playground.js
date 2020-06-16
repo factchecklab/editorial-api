@@ -9,7 +9,9 @@ export default {
     {
       name: 'Submit topic',
       responses: ['{}'],
-      endpoint: '',
+      endpoint:
+        process.env.GRAPHQL_PLAYGROUND_ENDPOINT ||
+        'https://api.factchecklab.org/graphql/editorial',
       query: [
         '# Submit a fake news topic',
         print(gql`
