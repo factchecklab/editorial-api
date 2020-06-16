@@ -5,6 +5,7 @@ import { makeSchema } from './make-schema';
 import directives from './directives';
 import { errorLoggingPlugin } from './plugins/error-logging';
 import context from './context';
+import playground from './playground';
 
 hooks.forEach((hook) => {
   const ctx = context();
@@ -16,7 +17,8 @@ hooks.forEach((hook) => {
     schema: await makeSchema(),
     context,
     schemaDirectives: directives,
-    introspection: true,
+    introspection: !process.env.DISABLE_GRAPHQL_INTROSPECTION,
+    playground: !process.env.DISABLE_GRAPHQL_PLAYGROUND && playground,
     plugins: [errorLoggingPlugin],
     cacheControl: {
       defaultMaxAge: parseInt(process.env.DEFAULT_CACHE_CONTROL_MAX_AGE) || 0,
