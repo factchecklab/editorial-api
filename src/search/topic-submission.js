@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 tech@factchecklab <tech@factchecklab.org>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 const INDEX_NAME = 'editorial-topic-submissions';
 const MIN_MORE_LIKE_THIS_SCORE = 5;
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 tech@factchecklab <tech@factchecklab.org>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
 import { parse } from '../util/database-connection-string';

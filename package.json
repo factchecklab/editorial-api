@@ -2,7 +2,11 @@
   "name": "editorial-api",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "license": "MIT",
+  "author": {
+    "name": "tech@factchecklab",
+    "email": "tech@factchecklab.org"
+  },
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "NODE_ENV=production node dist/index.js",
     "dev": "nodemon --exec babel-node src/index.js",
