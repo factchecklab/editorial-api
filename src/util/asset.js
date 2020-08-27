@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 tech@factchecklab <tech@factchecklab.org>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import mime from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
