@@ -5,7 +5,7 @@
 version: '3.6'
 services:
   elasticsearch:
-    image: maathk/elasticsearch:7.6.2
+    image: factchecklab/elasticsearch:7.6.2
     environment:
     - discovery.type=single-node
     volumes:
