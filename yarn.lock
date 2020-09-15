@@ -1155,6 +1155,18 @@
     through2 "^3.0.0"
     xdg-basedir "^4.0.0"
 
+"@graphql-tools/delegate@6.2.2":
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/delegate/-/delegate-6.2.2.tgz#3c401a06f6f7c3ef068d78217bde5e9b7b3830a0"
+  integrity sha512-8VycfZYQ+m4HgajewQT6v6BzAEFxc6mh6rO+uqewnvh143nvv3ud4nXEAfOddUm0PrE6iD3Ng2BZtPSWF5mt+w==
+  dependencies:
+    "@ardatan/aggregate-error" "0.0.6"
+    "@graphql-tools/schema" "6.2.2"
+    "@graphql-tools/utils" "6.2.2"
+    dataloader "2.0.0"
+    is-promise "4.0.0"
+    tslib "~2.0.1"
+
 "@graphql-tools/json-file-loader@^6.0.9":
   version "6.0.9"
   resolved "https://registry.yarnpkg.com/@graphql-tools/json-file-loader/-/json-file-loader-6.0.9.tgz#a91c834bef9cde4d6945b623e415e556314f43ff"
@@ -1196,6 +1208,14 @@
     "@graphql-tools/utils" "6.0.9"
     tslib "~2.0.0"
 
+"@graphql-tools/schema@6.2.2":
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/schema/-/schema-6.2.2.tgz#2dd7c6fbb4b6ccad239d0fefc3eb6d98a1bfcb01"
+  integrity sha512-KITlyr//1oKyxIOlGvNZDl4c6bLj2Gc+3eJXyUKWfSmgsmAZPudpQNa/8VbiVujpm7UaX0cyM3FdeCaxWFeBgg==
+  dependencies:
+    "@graphql-tools/utils" "6.2.2"
+    tslib "~2.0.1"
+
 "@graphql-tools/utils@6.0.9":
   version "6.0.9"
   resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-6.0.9.tgz#135a56f6520a99a2bbbfaf7d76bd5f681d1ce457"
@@ -1203,13 +1223,24 @@
   dependencies:
     camel-case "4.1.1"
 
-"@graphql-tools/utils@^6.0.9":
+"@graphql-tools/utils@6.2.2", "@graphql-tools/utils@^6.0.9":
   version "6.2.2"
   resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-6.2.2.tgz#490236f539754ec59cd0490919b00ed9e0dba604"
   integrity sha512-a0SSYF76dnKHs8te4Igfnrrq1VOO4sFG8yx3ehO7464eGUfUUYo2QmNRjhxny2HRMvqzX40xuQikyg6LBXDNLQ==
   dependencies:
     "@ardatan/aggregate-error" "0.0.6"
     camel-case "4.1.1"
+    tslib "~2.0.1"
+
+"@graphql-tools/wrap@^6.0.9":
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/wrap/-/wrap-6.2.2.tgz#034fb885ad0812a13db3db7eec37d9dd300c7145"
+  integrity sha512-FjCE+NvMwcCiAlt9EAw9uDi2zblE4Z5CEkY+z4NRO1AmCB5THoWJKG+csPh8tGuU80mAJI51Wy9FQGyUo/EU0g==
+  dependencies:
+    "@graphql-tools/delegate" "6.2.2"
+    "@graphql-tools/schema" "6.2.2"
+    "@graphql-tools/utils" "6.2.2"
+    is-promise "4.0.0"
     tslib "~2.0.1"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
@@ -3788,7 +3819,7 @@ data-urls@^1.1.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
-dataloader@^2.0.0:
+dataloader@2.0.0, dataloader@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.0.0.tgz#41eaf123db115987e21ca93c005cd7753c55fe6f"
   integrity sha512-YzhyDAwA4TaQIhM5go+vCLmU0UikghC/t9DTQYZR2M/UvZ1MdOhPezSDZcjj9uqQJOMqjLcpWtyW2iNINdlatQ==
@@ -5779,6 +5810,11 @@ is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   integrity sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==
   dependencies:
     isobject "^3.0.1"
+
+is-promise@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/is-promise/-/is-promise-4.0.0.tgz#42ff9f84206c1991d26debf520dd5c01042dd2f3"
+  integrity sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==
 
 is-promise@^2.1, is-promise@^2.1.0:
   version "2.2.2"

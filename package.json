@@ -28,6 +28,7 @@
     "@graphql-tools/json-file-loader": "^6.0.9",
     "@graphql-tools/load": "^6.0.9",
     "@graphql-tools/utils": "^6.0.9",
+    "@graphql-tools/wrap": "^6.0.9",
     "@sentry/integrations": "^5.15.5",
     "@sentry/node": "^5.15.5",
     "airtable": "^0.10.0",
