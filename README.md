@@ -50,7 +50,7 @@ $ docker-compose run --rm api yarn migrate
 $ docker-compose up app
 ```
 
-The sercer listen at port 4000. Browse to `http://localhost:4000` for GraphQL
+The server listen at port 4000. Browse to `http://localhost:4000` for GraphQL
 Playground and use the same URL for GraphQL API endpoint.
 
 ## Contributing
