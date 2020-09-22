@@ -15,7 +15,7 @@ editorial team and checking for related fact check reports.
 * Submit fake news to editorial team.
 * Find related fact check report with potential misinformation.
 
-To try out the Factcheck DB API, head over to
+To try out the Editorial DB API, head over to
 [GraphQL Playground](https://api.factchecklab.org/graphql/editorial) and start
 querying!
 
