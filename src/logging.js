@@ -4,8 +4,6 @@
 
 import dotenv from 'dotenv';
 import winston from 'winston';
-import Sentry from 'winston-transport-sentry-node';
-import { RewriteFrames } from '@sentry/integrations';
 
 dotenv.config();
 
@@ -30,23 +28,6 @@ const transports = [
           ),
   }),
 ];
-
-if (process.env.SENTRY_DSN) {
-  transports.push(
-    new Sentry({
-      sentry: {
-        dsn: process.env.SENTRY_DSN,
-        integrations: [
-          // Used for rewriting SourceMaps
-          new RewriteFrames({
-            root: process.cwd(),
-          }),
-        ],
-      },
-      level: 'error',
-    })
-  );
-}
 
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'warn',
