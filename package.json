@@ -29,8 +29,6 @@
     "@graphql-tools/load": "^6.0.9",
     "@graphql-tools/utils": "^6.0.9",
     "@graphql-tools/wrap": "^6.0.9",
-    "@sentry/integrations": "^5.15.5",
-    "@sentry/node": "^5.15.5",
     "airtable": "^0.10.0",
     "apollo-link-http": "^1.5.17",
     "apollo-server": "^2.11.0",
@@ -48,7 +46,6 @@
     "sequelize": "^5.21.5",
     "uuid": "^7.0.3",
     "winston": "^3.2.1",
-    "winston-transport-sentry-node": "^0.3.0",
     "yargs": "^15.3.1"
   },
   "devDependencies": {
